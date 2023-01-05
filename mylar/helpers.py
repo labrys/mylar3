@@ -3590,6 +3590,17 @@ def script_env(mode, vars):
     except OSError as e:
         logger.warn("Unable to run extra_script: " + str(script_cmd))
         return False
+    except TypeError as e:
+        bad_environment = False
+        for key, value in mylar_env.items():
+            if not isinstance(key, str) or not isinstance(value, str):
+                bad_environment = True
+                if key in os.environ:
+                    logger.error('Invalid global environment variable: {k!r} = {v!r}'.format(k=key, v=value))
+                else:
+                    logger.error('Invalid Mylar environment variable: {k!r} = {v!r}'.format(k=key, v=value))
+        if not bad_environment:
+            raise e
     else:
         return True
 
